@@ -1,10 +1,12 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import {
   extractCreateStorePayload,
   validateCreateStore,
   writeStore,
 } from "../controllers/storeController";
 import multer from "multer";
+import prisma from "../prisma";
+import { paginatedResponseBuilder } from "../utils/paginationUtils";
 
 // multer storage options
 const storage = multer.diskStorage({
@@ -35,5 +37,10 @@ storeRoute.patch(
   extractCreateStorePayload,
   writeStore(true)
 );
+
+storeRoute.get("/", async (req: Request, res: Response, next: NextFunction) => {
+  const data = await prisma.store.findMany({ ...req.paginationQueries });
+  res.status(200).json(paginatedResponseBuilder(req, data, 11));
+});
 
 export default storeRoute;
