@@ -9,7 +9,7 @@ import multer from "multer";
 // multer storage options
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./public/img");
+    cb(null, "./public/uploads");
   },
   filename: function (req, file, cb) {
     const extension = file.originalname.match(/\..*/);
