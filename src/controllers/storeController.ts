@@ -39,15 +39,15 @@ export const getStores = async (req: Request, res: Response, next: NextFunction)
   if (req.params.id) {
     const id = Number(req.params.id);
     const data = await prisma.store.findUnique({ where: { id } });
-    return res.status(200).json(data);
+    return res.status(201).json(data);
   }
 
-  // todo count
   const data = await prisma.store.findMany({ ...req.paginationQueries });
   const count = await prisma.store.count();
   return res.status(200).json(paginatedResponseBuilder(req, data, count));
 };
 
+// Hello Mr Ahmad
 export const deleteStore = async (req: Request, res: Response, next: NextFunction) => {
   const id = Number(req.params.id);
   const store = await prisma.store.delete({ where: { id } });
