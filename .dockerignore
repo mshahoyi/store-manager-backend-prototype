@@ -4,3 +4,4 @@ npm-debug.log
 .gitignore
 .vscode
 src/tests
+public
