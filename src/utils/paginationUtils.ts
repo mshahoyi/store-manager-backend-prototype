@@ -2,22 +2,40 @@ import { NextFunction, Request, Response } from "express";
 import { URL } from "url";
 
 export const paginationQueryFormatter = (queries: Request["query"]) => {
-  const object: { take?: number; skip?: number } = {};
+  const object: { take?: number; skip?: number; orderBy?: Record<string, "desc" | "asc"> } = {};
 
+  // Offset
   if (queries.offset !== undefined) {
     object.skip = Number(queries.offset);
   }
 
-  object.take = queries.limit ? Number(queries.limit) : 10;
+  // Limit. It should not exceed 200
+  const limit = Number(queries.limit);
+  if (Number.isNaN(limit)) {
+    object.take = 10;
+  } else if (limit > 200) {
+    object.take = 200;
+  } else {
+    object.take = limit;
+  }
+
+  // Can not take multiple sort fields
+  if (Array.isArray(queries.orderBy)) {
+    throw new Error("Can not handle multiple sort fields");
+  }
+
+  // Sorting
+  if (queries.orderBy !== undefined) {
+    const value = queries.orderBy as string;
+    const isDescending = value.startsWith("-");
+    const fieldName = value.slice(1);
+    object.orderBy = { [fieldName]: isDescending ? "desc" : "asc" };
+  }
 
   return object;
 };
 
-export const paginationQueryMiddleware = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const paginationQueryMiddleware = (req: Request, res: Response, next: NextFunction) => {
   req.paginationQueries = paginationQueryFormatter(req.query);
   next();
 };
@@ -49,10 +67,7 @@ export const paginatedResponseBuilder = (
 
   // Add last page
   const last = new URL(url);
-  last.searchParams.set(
-    "offset",
-    String(count - limit < 0 ? 0 : count - limit)
-  );
+  last.searchParams.set("offset", String(count - limit < 0 ? 0 : count - limit));
   object.last = last.toString();
 
   // Add next page if available
@@ -65,10 +80,7 @@ export const paginatedResponseBuilder = (
   // Add previous page if available
   if (offset > 0) {
     const prev = new URL(url);
-    prev.searchParams.set(
-      "offset",
-      String(offset - limit < 0 ? 0 : offset - limit)
-    );
+    prev.searchParams.set("offset", String(offset - limit < 0 ? 0 : offset - limit));
     object.prev = prev.toString();
   }
 

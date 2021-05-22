@@ -9,27 +9,27 @@ import {
 import { protect } from "../controllers/authController";
 import { upload } from "../utils/multer";
 
-const storeRoute = express.Router();
+const categoryRoute = express.Router();
 
-storeRoute.post(
+categoryRoute.post(
   "/",
   protect,
-  upload.single("logo"),
+  upload.single("image"),
   extractCreateStorePayload,
   validateCreateStore,
   writeStore(false)
 );
 
-storeRoute.patch(
+categoryRoute.patch(
   "/:id",
   protect,
-  upload.single("logo"),
+  upload.single("image"),
   extractCreateStorePayload,
   writeStore(true)
 );
 
-storeRoute.get("/:id?", protect, getStores);
+categoryRoute.get("/:id?", protect, getStores);
 
-storeRoute.delete("/:id", protect, deleteStore);
+categoryRoute.delete("/:id", protect, deleteStore);
 
-export default storeRoute;
+export default categoryRoute;
