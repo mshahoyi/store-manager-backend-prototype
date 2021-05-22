@@ -8,16 +8,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-}
-
-model Store {
-  id        Int      @default(autoincrement()) @id
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String
-  logo      String
-  categories    Category[]
-  products      Product[]
+  output = "node_modules/@prsima/masterClient"
 }
 
 model Product {
@@ -29,8 +20,6 @@ model Product {
   price   Float
   category Category @relation(fields: [categoryId], references: [id])
   categoryId Int
-  store Store @relation(fields: [storeId], references: [id])
-  storeId Int
 }
 
 model Category {
@@ -39,7 +28,5 @@ model Category {
   updatedAt DateTime @updatedAt
   name    String
   image   String
-  store   Store @relation(fields: [storeId], references: [id])
-  storeId Int
   products Product[]
 }
