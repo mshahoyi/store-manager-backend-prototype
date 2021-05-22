@@ -1,13 +1,14 @@
 import express from "express";
-import {
-  deleteStore,
-  extractCreateStorePayload,
-  getStores,
-  validateCreateStore,
-  writeStore,
-} from "../controllers/storeController";
 import { protect } from "../controllers/authController";
 import { upload } from "../utils/multer";
+import {
+  deleteCategory,
+  extractCreateCategoryPayload,
+  getCategories,
+  writeCategory,
+} from "../controllers/categoryController";
+import { validatePayload } from "../controllers/sharedController";
+import { createCategorySchema } from "../model/categoryModel";
 
 const categoryRoute = express.Router();
 
@@ -15,21 +16,21 @@ categoryRoute.post(
   "/",
   protect,
   upload.single("image"),
-  extractCreateStorePayload,
-  validateCreateStore,
-  writeStore(false)
+  extractCreateCategoryPayload,
+  validatePayload(createCategorySchema),
+  writeCategory(false)
 );
 
 categoryRoute.patch(
   "/:id",
   protect,
   upload.single("image"),
-  extractCreateStorePayload,
-  writeStore(true)
+  extractCreateCategoryPayload,
+  writeCategory(true)
 );
 
-categoryRoute.get("/:id?", protect, getStores);
+categoryRoute.get("/:id?", protect, getCategories);
 
-categoryRoute.delete("/:id", protect, deleteStore);
+categoryRoute.delete("/:id", protect, deleteCategory);
 
 export default categoryRoute;

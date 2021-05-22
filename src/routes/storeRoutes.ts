@@ -3,11 +3,12 @@ import {
   deleteStore,
   extractCreateStorePayload,
   getStores,
-  validateCreateStore,
   writeStore,
 } from "../controllers/storeController";
 import { protect } from "../controllers/authController";
 import { upload } from "../utils/multer";
+import { validatePayload } from "../controllers/sharedController";
+import { createStoreSchema } from "../model/storeModel";
 
 const storeRoute = express.Router();
 
@@ -16,7 +17,7 @@ storeRoute.post(
   protect,
   upload.single("logo"),
   extractCreateStorePayload,
-  validateCreateStore,
+  validatePayload(createStoreSchema),
   writeStore(false)
 );
 

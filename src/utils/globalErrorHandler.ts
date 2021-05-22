@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ValidationError } from "yup";
 import multer from "multer";
-import { PrismaClientValidationError } from "@prisma/client/runtime";
+import { PrismaClientKnownRequestError, PrismaClientValidationError } from "@prisma/client/runtime";
 
 const globalErrorHandler = (error: Error, req: Request, res: Response, next: NextFunction) => {
   // Do not return a response if headers have already been sent
@@ -19,8 +19,11 @@ const globalErrorHandler = (error: Error, req: Request, res: Response, next: Nex
     return res.status(422).json(error.message);
   }
 
-  // Prisma Validation Errors
-  if (error instanceof PrismaClientValidationError) {
+  // Prisma Errors
+  if (
+    error instanceof PrismaClientValidationError ||
+    error instanceof PrismaClientKnownRequestError
+  ) {
     return res.status(422).json(error.message);
   }
 

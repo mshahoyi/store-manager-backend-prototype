@@ -13,13 +13,6 @@ export const extractCreateStorePayload = (req: Request, res: Response, next: Nex
   next();
 };
 
-export const validateCreateStore = async (req: Request, res: Response, next: NextFunction) => {
-  createStoreSchema
-    .validate(req.body.payload)
-    .then(() => next())
-    .catch(next);
-};
-
 export const writeStore = (isUpdate: boolean) => async (req: Request, res: Response) => {
   let store;
   if (isUpdate) {
