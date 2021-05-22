@@ -2,13 +2,17 @@ import { NextFunction, Request, Response } from "express";
 import prisma from "../prisma";
 import { catchAsync } from "../utils/catchAsync";
 import { paginatedResponseBuilder } from "../utils/paginationUtils";
+import path from "path";
 
 export const extractCreateProductPayload = (req: Request, res: Response, next: NextFunction) => {
   req.body.payload = {
     name: req.body.name,
-    image: req.file?.path.split("/").slice(1).join("/"),
+    image: path.basename(req.file.originalname),
     categoryId: Number(req.body.categoryId),
+    price: Number(req.body.price),
   };
+
+  console.log(req.body.payload);
 
   next();
 };

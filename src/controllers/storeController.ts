@@ -1,32 +1,33 @@
 import { NextFunction, Request, Response } from "express";
-import { createStoreSchema } from "../model/storeModel";
 import prisma from "../prisma";
 import { paginatedResponseBuilder } from "../utils/paginationUtils";
 import { catchAsync } from "../utils/catchAsync";
+import path from "path";
 
 export const extractCreateStorePayload = (req: Request, res: Response, next: NextFunction) => {
   req.body.payload = {
     name: req.body.name,
-    logo: req.file?.path.split("/").slice(1).join("/"),
+    logo: path.basename(req.file.originalname),
   };
 
   next();
 };
 
-export const writeStore = (isUpdate: boolean) => async (req: Request, res: Response) => {
-  let store;
-  if (isUpdate) {
-    const id = Number(req.params.id);
-    store = await prisma.store.update({
-      where: { id },
-      data: req.body.payload,
-    });
-  } else {
-    store = await prisma.store.create({ data: req.body.payload });
-  }
+export const writeStore = (isUpdate: boolean) =>
+  catchAsync(async (req: Request, res: Response) => {
+    let store;
+    if (isUpdate) {
+      const id = Number(req.params.id);
+      store = await prisma.store.update({
+        where: { id },
+        data: req.body.payload,
+      });
+    } else {
+      store = await prisma.store.create({ data: req.body.payload });
+    }
 
-  res.status(201).json(store);
-};
+    res.status(201).json(store);
+  });
 
 export const getStores = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   // only get one store if param is provided
@@ -41,8 +42,8 @@ export const getStores = catchAsync(async (req: Request, res: Response, next: Ne
   return res.status(200).json(paginatedResponseBuilder(req, data, count));
 });
 
-export const deleteStore = async (req: Request, res: Response, next: NextFunction) => {
+export const deleteStore = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const id = Number(req.params.id);
   const store = await prisma.store.delete({ where: { id } });
   res.status(200).json(store);
-};
+});
