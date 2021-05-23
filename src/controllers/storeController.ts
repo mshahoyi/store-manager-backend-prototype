@@ -1,13 +1,13 @@
-import { NextFunction, Request, Response } from "express";
-import prisma from "../prisma";
-import { paginatedResponseBuilder } from "../utils/paginationUtils";
-import { catchAsync } from "../utils/catchAsync";
-import path from "path";
+import { NextFunction, Request, Response } from 'express';
+import prisma from '../prisma';
+import { paginatedResponseBuilder } from '../utils/paginationUtils';
+import { catchAsync } from '../utils/catchAsync';
 
 export const extractCreateStorePayload = (req: Request, res: Response, next: NextFunction) => {
   req.body.payload = {
     name: req.body.name,
-    logo: path.basename(req.file.originalname),
+    // get rid of the pulic folder in path
+    logo: '/' + req.file?.path.split('/').slice(1).join('/'),
   };
 
   next();

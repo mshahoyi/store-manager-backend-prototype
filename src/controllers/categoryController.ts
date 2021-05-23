@@ -1,13 +1,13 @@
-import { NextFunction, Request, Response } from "express";
-import prisma from "../prisma";
-import { catchAsync } from "../utils/catchAsync";
-import { paginatedResponseBuilder } from "../utils/paginationUtils";
-import path from "path";
+import { NextFunction, Request, Response } from 'express';
+import prisma from '../prisma';
+import { catchAsync } from '../utils/catchAsync';
+import { paginatedResponseBuilder } from '../utils/paginationUtils';
+import path from 'path';
 
 export const extractCreateCategoryPayload = (req: Request, res: Response, next: NextFunction) => {
   req.body.payload = {
     name: req.body.name,
-    image: path.basename(req.file.originalname),
+    image: '/' + req.file?.path.split('/').slice(1).join('/'),
     storeId: Number(req.body.storeId),
   };
 
