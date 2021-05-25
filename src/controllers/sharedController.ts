@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from "express";
-import { ObjectSchema } from "yup";
-import { ObjectShape } from "yup/lib/object";
+import { NextFunction, Request, Response } from 'express';
+import { ObjectSchema } from 'yup';
+import { ObjectShape } from 'yup/lib/object';
 
 export const validatePayload =
   <T extends ObjectShape>(schema: ObjectSchema<T>) =>

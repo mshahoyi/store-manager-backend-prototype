@@ -2,13 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 import prisma from '../prisma';
 import { paginatedResponseBuilder } from '../utils/paginationUtils';
 import { catchAsync } from '../utils/catchAsync';
+import { addBaseUrl, extractObjectFields } from '../utils/sharedUtils';
+import { Store } from '@prisma/client';
 
 export const extractCreateStorePayload = (req: Request, res: Response, next: NextFunction) => {
-  req.body.payload = {
-    name: req.body.name,
-    // get rid of the pulic folder in path
-    logo: '/' + req.file?.path.split('/').slice(1).join('/'),
-  };
+  req.body.payload = extractObjectFields(req.body, ['name']);
+  if (req.file) {
+    req.body.payload.logo = '/' + req.file?.path.split('/').slice(1).join('/');
+  }
 
   next();
 };
@@ -29,17 +30,18 @@ export const writeStore = (isUpdate: boolean) =>
     res.status(201).json(store);
   });
 
-export const getStores = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const getStores = catchAsync(async (req: Request, res: Response) => {
   // only get one store if param is provided
   if (req.params.id) {
     const id = Number(req.params.id);
     const data = await prisma.store.findUnique({ where: { id } });
+    addBaseUrl('store', req, data as Store);
     return res.status(200).json(data);
   }
 
-  const data = await prisma.store.findMany({ ...req.paginationQueries });
-  const count = await prisma.store.count();
-  return res.status(200).json(paginatedResponseBuilder(req, data, count));
+  const data = await prisma.store.findMany();
+  data.forEach((store) => addBaseUrl('store', req, store));
+  return res.status(200).json(data);
 });
 
 export const deleteStore = catchAsync(async (req: Request, res: Response, next: NextFunction) => {

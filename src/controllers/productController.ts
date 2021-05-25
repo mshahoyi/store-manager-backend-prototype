@@ -3,16 +3,14 @@ import prisma from '../prisma';
 import { catchAsync } from '../utils/catchAsync';
 import { paginatedResponseBuilder } from '../utils/paginationUtils';
 import path from 'path';
+import { addBaseUrl, extractObjectFields } from '../utils/sharedUtils';
+import { Product } from '@prisma/client';
 
 export const extractCreateProductPayload = (req: Request, res: Response, next: NextFunction) => {
-  req.body.payload = {
-    name: req.body.name,
-    image: '/' + req.file?.path.split('/').slice(1).join('/'),
-    categoryId: Number(req.body.categoryId),
-    price: Number(req.body.price),
-  };
-
-  console.log(req.body.payload);
+  req.body.payload = extractObjectFields<Product>(req.body, ['name', 'price', 'categoryId']);
+  if (req.file) {
+    req.body.payload.image = '/' + req.file?.path.split('/').slice(1).join('/');
+  }
 
   next();
 };
@@ -38,13 +36,15 @@ export const getProducts = catchAsync(async (req: Request, res: Response, next: 
   if (req.params.id) {
     const id = Number(req.params.id);
     const data = await prisma.product.findUnique({ where: { id }, include: { category: true } });
+    addBaseUrl('product', req, data);
     return res.status(200).json(data);
   }
 
-  const data = await prisma.product.findMany({
+  const data = (await prisma.product.findMany({
     ...req.paginationQueries,
     include: { category: true },
-  });
+  })) as Product[];
+  data.forEach((product) => addBaseUrl('product', req, product));
   const count = await prisma.product.count();
   return res.status(200).json(paginatedResponseBuilder(req, data, count));
 });
