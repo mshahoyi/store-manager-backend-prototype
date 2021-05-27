@@ -17,6 +17,7 @@ model Store {
   name      String
   logo      String
   categories    Category[]
+  products      Product[]
 }
 
 model Product {
@@ -28,6 +29,8 @@ model Product {
   price   Float
   category Category @relation(fields: [categoryId], references: [id])
   categoryId Int
+  store Store @relation(fields: [storeId], references: [id])
+  storeId Int
 }
 
 model Category {

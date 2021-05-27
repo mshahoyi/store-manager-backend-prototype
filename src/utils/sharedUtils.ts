@@ -41,3 +41,8 @@ export const extractObjectFields = <T>(object: T, fields: (keyof T)[]) => {
 
   return extraction;
 };
+
+export const unicodeToChar = (text: string) =>
+  text.replace(/\\u[\dA-F]{4}/gi, (match: string) =>
+    String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16))
+  );

@@ -30,7 +30,7 @@ categoryRoute.patch(
   writeCategory(true)
 );
 
-categoryRoute.get('/:id?', protect, getCategories);
+categoryRoute.get('/:storeId/:id?', protect, getCategories);
 
 categoryRoute.get('/list/:storeId', protect, listCategories);
 

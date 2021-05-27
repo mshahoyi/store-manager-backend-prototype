@@ -40,8 +40,10 @@ export const getCategories = catchAsync(async (req: Request, res: Response) => {
     return res.status(200).json(data);
   }
 
+  const storeId = Number(req.params.storeId);
   const data = (await prisma.category.findMany({
     ...req.paginationQueries,
+    where: { storeId },
     include: { store: true },
   })) as Category[];
   data.forEach((category) => addBaseUrl('category', req, category));

@@ -1,7 +1,8 @@
-import { NextFunction, Request, Response } from "express";
-import { ValidationError } from "yup";
-import multer from "multer";
-import { PrismaClientKnownRequestError, PrismaClientValidationError } from "@prisma/client/runtime";
+import { NextFunction, Request, Response } from 'express';
+import { ValidationError } from 'yup';
+import multer from 'multer';
+import { PrismaClientKnownRequestError, PrismaClientValidationError } from '@prisma/client/runtime';
+import { unicodeToChar } from './sharedUtils';
 
 const globalErrorHandler = (error: Error, req: Request, res: Response, next: NextFunction) => {
   // Do not return a response if headers have already been sent
@@ -24,7 +25,7 @@ const globalErrorHandler = (error: Error, req: Request, res: Response, next: Nex
     error instanceof PrismaClientValidationError ||
     error instanceof PrismaClientKnownRequestError
   ) {
-    return res.status(422).json(error.message);
+    return res.status(422).json(unicodeToChar(decodeURIComponent(error.message)));
   }
 
   next(error);

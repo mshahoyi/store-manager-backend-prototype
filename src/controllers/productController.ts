@@ -2,18 +2,19 @@ import { NextFunction, Request, Response } from 'express';
 import prisma from '../prisma';
 import { catchAsync } from '../utils/catchAsync';
 import { paginatedResponseBuilder } from '../utils/paginationUtils';
-import path from 'path';
 import { addBaseUrl, extractObjectFields } from '../utils/sharedUtils';
 import { Product } from '@prisma/client';
+import { reach } from 'yup';
 
 export const extractCreateProductPayload = (req: Request, res: Response, next: NextFunction) => {
-  req.body.payload = extractObjectFields<Product>(req.body, ['name', 'price', 'categoryId']);
-  req.body.payload.categoryId = Number(req.body.payload.categoryId);
-  req.body.payload.price = Number(req.body.payload.price);
-  if (req.file) {
-    req.body.payload.image = '/' + req.file?.path.split('/').slice(1).join('/');
-  }
+  const payload = {} as Record<string, unknown>;
+  if (req.body.name) payload.name = req.body.name;
+  if (req.body.price) payload.price = Number(req.body.price);
+  if (req.body.categoryId) payload.categoryId = Number(req.body.categoryId);
+  if (req.body.storeId) payload.storeId = Number(req.body.storeId);
+  if (req.file) payload.image = '/' + req.file?.path.split('/').slice(1).join('/');
 
+  req.body.payload = payload;
   next();
 };
 
@@ -33,7 +34,7 @@ export const writeProduct = (isUpdate: boolean) =>
     res.status(201).json(product);
   });
 
-export const getProducts = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const getProducts = catchAsync(async (req: Request, res: Response) => {
   // only get one category if param is provided
   if (req.params.id) {
     const id = Number(req.params.id);
@@ -42,8 +43,10 @@ export const getProducts = catchAsync(async (req: Request, res: Response, next: 
     return res.status(200).json(data);
   }
 
+  const storeId = Number(req.params.storeId);
   const data = (await prisma.product.findMany({
     ...req.paginationQueries,
+    where: { storeId },
     include: { category: true },
   })) as Product[];
   data.forEach((product) => addBaseUrl('product', req, product));
