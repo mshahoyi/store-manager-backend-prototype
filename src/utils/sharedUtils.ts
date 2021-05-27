@@ -37,5 +37,7 @@ export const extractObjectFields = <T>(object: T, fields: (keyof T)[]) => {
     if (obj[field] !== undefined) extraction[field] = obj[field];
   });
 
+  console.log(extraction);
+
   return extraction;
 };

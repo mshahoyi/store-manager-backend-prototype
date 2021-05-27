@@ -7,10 +7,10 @@ import { addBaseUrl, extractObjectFields } from '../utils/sharedUtils';
 
 export const extractCreateCategoryPayload = (req: Request, res: Response, next: NextFunction) => {
   req.body.payload = extractObjectFields<Category>(req.body, ['name', 'storeId']);
+  req.body.payload.storeId = Number(req.body.payload.storeId);
   if (req.file) {
     req.body.payload.image = '/' + req.file?.path.split('/').slice(1).join('/');
   }
-
   next();
 };
 
@@ -56,3 +56,9 @@ export const deleteCategory = catchAsync(
     res.status(200).json(store);
   }
 );
+
+export const listCategories = catchAsync(async (req: Request, res: Response) => {
+  const storeId = Number(req.params.storeId);
+  const data = await prisma.category.findMany({ where: { storeId } });
+  res.status(200).json(data);
+});

@@ -8,6 +8,8 @@ import { Product } from '@prisma/client';
 
 export const extractCreateProductPayload = (req: Request, res: Response, next: NextFunction) => {
   req.body.payload = extractObjectFields<Product>(req.body, ['name', 'price', 'categoryId']);
+  req.body.payload.categoryId = Number(req.body.payload.categoryId);
+  req.body.payload.price = Number(req.body.payload.price);
   if (req.file) {
     req.body.payload.image = '/' + req.file?.path.split('/').slice(1).join('/');
   }
