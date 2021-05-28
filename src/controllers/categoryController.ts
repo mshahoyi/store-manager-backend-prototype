@@ -60,5 +60,5 @@ export const deleteCategory = catchAsync(async (req: Request, res: Response) => 
 export const listCategories = catchAsync(async (req: Request, res: Response) => {
   const storeId = Number(req.params.storeId);
   const data = await prisma.category.findMany({ where: { storeId } });
-  res.status(200).json(Array.isArray(data) ? data : [data]);
+  res.status(200).json(data);
 });
