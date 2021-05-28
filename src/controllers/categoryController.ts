@@ -51,16 +51,14 @@ export const getCategories = catchAsync(async (req: Request, res: Response) => {
   return res.status(200).json(paginatedResponseBuilder(req, data, count));
 });
 
-export const deleteCategory = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const id = Number(req.params.id);
-    const store = await prisma.category.delete({ where: { id } });
-    res.status(200).json(store);
-  }
-);
+export const deleteCategory = catchAsync(async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  const store = await prisma.category.delete({ where: { id } });
+  res.status(200).json(store);
+});
 
 export const listCategories = catchAsync(async (req: Request, res: Response) => {
   const storeId = Number(req.params.storeId);
   const data = await prisma.category.findMany({ where: { storeId } });
-  res.status(200).json(data);
+  res.status(200).json(Array.isArray(data) ? data : [data]);
 });
